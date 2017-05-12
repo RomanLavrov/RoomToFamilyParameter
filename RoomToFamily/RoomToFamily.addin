@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Command">
+    <Text>Command RoomToFamily</Text>
+    <Description>Some description for RoomToFamily</Description>
+    <Assembly>RoomToFamily.dll</Assembly>
+    <FullClassName>RoomToFamily.Command</FullClassName>
+    <ClientId>16e97ad9-e4d5-4aff-b24e-9c569760ea3f</ClientId>
+    <VendorId>TBC_</VendorId>
+    <VendorDescription>The Building Coder, http://thebuildingcoder.typepad.com</VendorDescription>
+  </AddIn>
+  <AddIn Type="Application">
+    <Name>Application RoomToFamily</Name>
+    <Assembly>RoomToFamily.dll</Assembly>
+    <FullClassName>RoomToFamily.App</FullClassName>
+    <ClientId>31d08974-f136-4535-b3ef-c66d42959dcb</ClientId>
+    <VendorId>TBC_</VendorId>
+    <VendorDescription>The Building Coder, http://thebuildingcoder.typepad.com</VendorDescription>
+  </AddIn>
+</RevitAddIns>
