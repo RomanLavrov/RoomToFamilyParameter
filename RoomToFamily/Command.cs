@@ -186,7 +186,7 @@ namespace RoomToFamily
                     }
                 }
 
-                if (temp!=string.Empty)
+                //if (temp!=string.Empty)
                 //TaskDialog.Show("Room Devices", temp +"\n" + room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsValueString());
             }
         }
