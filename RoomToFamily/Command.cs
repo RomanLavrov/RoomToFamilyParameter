@@ -49,7 +49,7 @@ namespace RoomToFamily
                         roomList.Add(e);
                         tempLinkedRoom += e.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString() + " " + e.get_Parameter(BuiltInParameter.ROOM_NAME).AsString() + "\n";
                     }
-                    TaskDialog.Show("Linked Room", tempLinkedRoom);
+                    //TaskDialog.Show("Linked Room", tempLinkedRoom);
                 }
             }
             return roomList;
@@ -187,7 +187,7 @@ namespace RoomToFamily
                 }
 
                 if (temp!=string.Empty)
-                TaskDialog.Show("Room Devices", temp +"\n" + room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsValueString());
+                //TaskDialog.Show("Room Devices", temp +"\n" + room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsValueString());
             }
         }
 
