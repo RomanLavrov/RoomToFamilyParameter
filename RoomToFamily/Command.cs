@@ -49,13 +49,12 @@ namespace RoomToFamily
                         roomList.Add(e);
                         tempLinkedRoom += e.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString() + " " + e.get_Parameter(BuiltInParameter.ROOM_NAME).AsString() + "\n";
                     }
-                    //TaskDialog.Show("Linked Room", tempLinkedRoom);
                 }
             }
             return roomList;
         }
 
-        public List<FamilyInstance> GetLighting(Document doc, Room room)
+        private List<FamilyInstance> GetLighting(Document doc, Room room)
         {
             BoundingBoxIntersectsFilter filter = Filter(room);
             List<FamilyInstance> lightingList = new List<FamilyInstance>();
@@ -63,15 +62,12 @@ namespace RoomToFamily
                                                         OfClass(typeof(FamilyInstance)).
                                                         OfCategory(BuiltInCategory.OST_LightingDevices).
                                                         WherePasses(filter);
-            string temp = string.Empty;
+
             foreach (FamilyInstance e in roomCollector)
             {
-
                 lightingList.Add(e);
-                temp += e.Id + " " + e.Name + "\n";
             }
-            //if (temp != string.Empty)
-                //TaskDialog.Show("LightingDevices", temp);
+           
             return lightingList;
         }
 
@@ -83,15 +79,12 @@ namespace RoomToFamily
                                                         OfClass(typeof(FamilyInstance)).
                                                         OfCategory(BuiltInCategory.OST_LightingFixtures).
                                                         WherePasses(filter);
-            string temp = string.Empty;
             foreach (FamilyInstance e in roomCollector)
             {
                 lightingFixturesList.Add(e);
-                Debug.Print(e.Name);
-                temp += e.Id + " " + e.Name + "\n";
+              
             }
-            //if (temp != string.Empty)
-                //TaskDialog.Show("LightingFixtures", temp);
+           
             return lightingFixturesList;
         }
 
@@ -103,17 +96,11 @@ namespace RoomToFamily
                                                      OfClass(typeof(FamilyInstance)).
                                                      OfCategory(BuiltInCategory.OST_ElectricalEquipment).
                                                      WherePasses(filter);
-
-            string temp = string.Empty;
+           
             foreach (FamilyInstance e in collector)
             {
-
                 list.Add(e);
-                Debug.Print(e.Name);
-                temp += e.Id + " " + e.Name + "\n";
             }
-            //if (temp != string.Empty)
-                //TaskDialog.Show("ElectricalEquipment", temp);
             return list;
         }
 
@@ -125,15 +112,11 @@ namespace RoomToFamily
                                                     OfClass(typeof(FamilyInstance)).
                                                     OfCategory(BuiltInCategory.OST_ElectricalFixtures).
                                                     WherePasses(filter);
-            string temp = string.Empty;
+           
             foreach (FamilyInstance e in collector)
             {
-
                 list.Add(e);
-                temp += e.Id + " " + e.Name + "\n";
             }
-            //if (temp != string.Empty)
-                //TaskDialog.Show("ElectricalFixtures", temp);
             return list;
         }
 
@@ -152,8 +135,6 @@ namespace RoomToFamily
                 list.Add(e);
                 temp += e.Id + " " + e.Name + "\n";
             }
-            //if (temp != string.Empty)
-                //TaskDialog.Show("FireAlarmDevices", temp);
             return list;
         }
 
@@ -185,9 +166,6 @@ namespace RoomToFamily
                         trans.Commit();
                     }
                 }
-
-                //if (temp!=string.Empty)
-                //TaskDialog.Show("Room Devices", temp +"\n" + room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsValueString());
             }
         }
 
