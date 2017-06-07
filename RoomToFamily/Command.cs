@@ -24,19 +24,18 @@ namespace RoomToFamily
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
             
-            foreach (Room item in GetRooms(doc, app))
+            foreach (Room item in GetRooms(app))
             {
-                GetDevices(item, doc);
+                ApplyParameterToDevice(item, doc);
             }
            
             return Result.Succeeded;
         }
 
-        public List<Room> GetRooms(Document doc, Application app)
+        public List<Room> GetRooms(Application app)
         {
             List<Room> roomList = new List<Room>();
-            List<BoundingBoxXYZ> boxList = new List<BoundingBoxXYZ>();
-           
+            
             foreach (Document d in app.Documents)
             {
                 if (d.IsLinked)
@@ -53,102 +52,37 @@ namespace RoomToFamily
             }
             return roomList;
         }
-
-        private List<FamilyInstance> GetLighting(Document doc, Room room)
+       
+        private List<FamilyInstance> GetCategoryDevices(Document doc, Room room, BuiltInCategory category )
         {
             BoundingBoxIntersectsFilter filter = Filter(room);
             List<FamilyInstance> lightingList = new List<FamilyInstance>();
             FilteredElementCollector roomCollector = new FilteredElementCollector(doc).
-                                                        OfClass(typeof(FamilyInstance)).
-                                                        OfCategory(BuiltInCategory.OST_LightingDevices).
-                                                        WherePasses(filter);
+                OfClass(typeof(FamilyInstance)).
+                OfCategory(category).
+                WherePasses(filter);
 
             foreach (FamilyInstance e in roomCollector)
             {
                 lightingList.Add(e);
             }
-           
+
             return lightingList;
         }
 
-        public List<FamilyInstance> GetLightingFixtures(Document doc, Room room)
-        {
-            BoundingBoxIntersectsFilter filter = Filter(room);
-            List<FamilyInstance> lightingFixturesList = new List<FamilyInstance>();
-            FilteredElementCollector roomCollector = new FilteredElementCollector(doc).
-                                                        OfClass(typeof(FamilyInstance)).
-                                                        OfCategory(BuiltInCategory.OST_LightingFixtures).
-                                                        WherePasses(filter);
-            foreach (FamilyInstance e in roomCollector)
-            {
-                lightingFixturesList.Add(e);
-              
-            }
-           
-            return lightingFixturesList;
-        }
-
-        public List<FamilyInstance> GetElectricalEquipment(Document doc, Room room)
-        {
-            BoundingBoxIntersectsFilter filter = Filter(room);
-            List<FamilyInstance> list = new List<FamilyInstance>();
-            FilteredElementCollector collector = new FilteredElementCollector(doc).
-                                                     OfClass(typeof(FamilyInstance)).
-                                                     OfCategory(BuiltInCategory.OST_ElectricalEquipment).
-                                                     WherePasses(filter);
-           
-            foreach (FamilyInstance e in collector)
-            {
-                list.Add(e);
-            }
-            return list;
-        }
-
-        public List<FamilyInstance> GetElectricalFixtures(Document doc, Room room)
-        {
-            BoundingBoxIntersectsFilter filter = Filter(room);
-            List<FamilyInstance> list = new List<FamilyInstance>();
-            FilteredElementCollector collector = new FilteredElementCollector(doc).
-                                                    OfClass(typeof(FamilyInstance)).
-                                                    OfCategory(BuiltInCategory.OST_ElectricalFixtures).
-                                                    WherePasses(filter);
-           
-            foreach (FamilyInstance e in collector)
-            {
-                list.Add(e);
-            }
-            return list;
-        }
-
-        public List<FamilyInstance> GetFireAlarmDevices(Document doc, Room room)
-        {
-            BoundingBoxIntersectsFilter filter = Filter(room);
-            List<FamilyInstance> list = new List<FamilyInstance>();
-            FilteredElementCollector collector = new FilteredElementCollector(doc).
-                                                    OfClass(typeof(FamilyInstance)).
-                                                    OfCategory(BuiltInCategory.OST_FireAlarmDevices).
-                                                    WherePasses(filter);
-
-            string temp = string.Empty;
-            foreach (FamilyInstance e in collector)
-            {
-                list.Add(e);
-                temp += e.Id + " " + e.Name + "\n";
-            }
-            return list;
-        }
-
-        public void GetDevices(Room room, Document doc)
+        private void ApplyParameterToDevice(Room room, Document doc)
         {
             List<FamilyInstance> devicesList = new List<FamilyInstance>();
             BoundingBoxXYZ box = room.get_BoundingBox(null);
             if (box != null)
             {
-                devicesList.AddRange(GetElectricalEquipment(doc, room));
-                devicesList.AddRange(GetElectricalFixtures(doc, room));
-                devicesList.AddRange(GetLighting(doc, room));
-                devicesList.AddRange(GetLightingFixtures(doc, room));
-                devicesList.AddRange(GetFireAlarmDevices(doc, room));
+                devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_ElectricalEquipment));
+                devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_ElectricalFixtures));
+                devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_LightingDevices));
+                devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_LightingFixtures));
+                devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_FireAlarmDevices));
+                devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_CommunicationDevices));
+                devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_TelephoneDevices));
 
                 string temp = string.Empty;               
                 {                       
@@ -160,7 +94,7 @@ namespace RoomToFamily
                             temp += instance.Name + "\n";
                             Parameter param1 = instance.LookupParameter("RaumNummer");
                             Parameter param2 = instance.LookupParameter("RaumName");
-                            param1.Set(room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsDouble());
+                            param1.Set(room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString());
                             param2.Set(room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString());
                         }                           
                         trans.Commit();
@@ -169,7 +103,7 @@ namespace RoomToFamily
             }
         }
 
-        public BoundingBoxIntersectsFilter Filter(Room room)
+        private BoundingBoxIntersectsFilter Filter(Room room)
         {
             BoundingBoxXYZ box = room.get_BoundingBox(null);
             if (box != null)
@@ -179,14 +113,6 @@ namespace RoomToFamily
                 return filter;
             }
             return null;
-        }
-
-        public void SetDeviceParameter(List<Room> rooms, Document doc)
-        {
-            foreach (var item in rooms)
-            {
-                GetDevices(item, doc);
-            }
         }
     }
 }
