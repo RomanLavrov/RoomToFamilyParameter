@@ -46,7 +46,6 @@ namespace RoomToFamily
                     string tempLinkedRoom = string.Empty;
                     foreach (Room e in roomLinkedCollector)
                     {
-
                         roomList.Add(e);
                         tempLinkedRoom += e.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString() + " " + e.get_Parameter(BuiltInParameter.ROOM_NAME).AsString() + "\n";
                     }
@@ -87,7 +86,6 @@ namespace RoomToFamily
             string temp = string.Empty;
             foreach (FamilyInstance e in roomCollector)
             {
-
                 lightingFixturesList.Add(e);
                 Debug.Print(e.Name);
                 temp += e.Id + " " + e.Name + "\n";
@@ -165,9 +163,6 @@ namespace RoomToFamily
             BoundingBoxXYZ box = room.get_BoundingBox(null);
             if (box != null)
             {
-                Outline outline = new Outline(box.Min, box.Max);
-                BoundingBoxIntersectsFilter filter = new BoundingBoxIntersectsFilter(outline);
-               
                 devicesList.AddRange(GetElectricalEquipment(doc, room));
                 devicesList.AddRange(GetElectricalFixtures(doc, room));
                 devicesList.AddRange(GetLighting(doc, room));
@@ -182,7 +177,7 @@ namespace RoomToFamily
                         foreach (FamilyInstance instance in devicesList)
                         {
                             temp += instance.Name + "\n";
-                            Parameter param1 = instance.LookupParameter("RaumNumber");
+                            Parameter param1 = instance.LookupParameter("RaumNummer");
                             Parameter param2 = instance.LookupParameter("RaumName");
                             param1.Set(room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsDouble());
                             param2.Set(room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString());
