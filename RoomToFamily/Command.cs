@@ -25,12 +25,13 @@ namespace RoomToFamily
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
-          
+            int counter = 0;
             foreach (Room item in GetRooms(app))
             {
                 ApplyParameterToDevice(item, doc);
+                counter++;
             }
-           
+            TaskDialog.Show("Finished", "Modification provided in " + counter +"rooms.");
             return Result.Succeeded;
         }
 
@@ -59,10 +60,9 @@ namespace RoomToFamily
         {
             BoundingBoxIntersectsFilter filter = Filter(room);
             List<FamilyInstance> instances = new List<FamilyInstance>();
-            FilteredElementCollector roomCollector = new FilteredElementCollector(doc).
-                OfClass(typeof(FamilyInstance)).
-                OfCategory(category).
-                WherePasses(filter);
+            FilteredElementCollector roomCollector = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+                .OfCategory(category)
+                .WherePasses(filter);
 
             foreach (FamilyInstance e in roomCollector)
             {
@@ -95,8 +95,18 @@ namespace RoomToFamily
                         trans.Start();                        
                         foreach (FamilyInstance instance in devicesList)
                         {
+                            
                             Parameter param1 = instance.LookupParameter("RaumNummer");
                             Parameter param2 = instance.LookupParameter("RaumName");
+                            if (param1.HasValue)
+                            {
+                                param1.Set("empty data");
+                            }
+
+                            if (param2.HasValue)
+                            {
+                                param2.Set("empty data");
+                            }
                             param1.Set(room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString());
                             param2.Set(room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString());
                         }                           
@@ -111,8 +121,8 @@ namespace RoomToFamily
             PointF location = new PointF();
             Location locationInstance = instance.Location;
             LocationPoint point = locationInstance as LocationPoint; 
-            location.X = (float) (point.Point.X);
-            location.Y = (float)(point.Point.Y);
+            location.X = (float) (point.Point.X * 25.4 * 12);
+            location.Y = (float) (point.Point.Y * 25.4 * 12);
 
             return location;
         }
@@ -164,13 +174,13 @@ namespace RoomToFamily
 
                     var segmentStart = segment.GetCurve().GetEndPoint(0);
 
-                    wall.X1 = (segmentStart.X);
-                    wall.Y1 = (segmentStart.Y);
+                    wall.X1 = (segmentStart.X * 25.4 * 12);
+                    wall.Y1 = (segmentStart.Y * 25.4 * 12);
 
                     var segmentEnd = segment.GetCurve().GetEndPoint(1);
 
-                    wall.X2 = (segmentEnd.X);
-                    wall.Y2 = (segmentEnd.Y);
+                    wall.X2 = (segmentEnd.X * 25.4 * 12);
+                    wall.Y2 = (segmentEnd.Y * 25.4 * 12);
 
                     wallCoord.Add(wall);
                 }
