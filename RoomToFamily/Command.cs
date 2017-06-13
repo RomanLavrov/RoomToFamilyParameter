@@ -4,13 +4,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
+using System.Windows;
 using System.Windows.Documents;
-using Autodesk.Revit.ApplicationServices;
+using System.Windows.Forms;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using Autodesk.Revit.DB.Architecture;
+using Application = Autodesk.Revit.ApplicationServices.Application;
+using MessageBox = System.Windows.MessageBox;
 
 #endregion
 
@@ -25,38 +29,167 @@ namespace RoomToFamily
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
-            int counter = 0;
-            foreach (Room item in GetRooms(app))
+
+            DocSelection dc = new DocSelection();
+            dc.GetDocList(GetDocuments(app));
+
+            Window docSelectionWindow = new Window();
+            docSelectionWindow.ResizeMode = ResizeMode.NoResize;
+            docSelectionWindow.Width = 500;
+            docSelectionWindow.Height = 350;
+            docSelectionWindow.Topmost = true;
+            docSelectionWindow.Content = dc;
+            docSelectionWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            docSelectionWindow.ShowDialog();
+
+            List<Document> UserDefinedDocuments = new List<Document>();
+            if (docSelectionWindow.DialogResult == true)
+            {
+                if (dc.Docs.Count > 0)
+                {
+                    UserDefinedDocuments = dc.Docs;
+                }
+                else
+                {
+                    MessageBox.Show("No projects selected");
+                    return Result.Cancelled;
+                }
+            }
+
+            LevelSelection ls = new LevelSelection();
+            foreach (Document docItem in UserDefinedDocuments)
+            {
+                ls.GetLevels(GetLevels(docItem));
+            }
+
+            Window levelSelectionWindow = new Window();
+            levelSelectionWindow.ResizeMode = ResizeMode.NoResize;
+            levelSelectionWindow.Width = 320;
+            levelSelectionWindow.Height = 350;
+            levelSelectionWindow.Topmost = true;
+            levelSelectionWindow.Content = ls;
+            levelSelectionWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            levelSelectionWindow.ShowDialog();
+
+            List<Level> UserDefinedLevels = new List<Level>();
+            if (levelSelectionWindow.DialogResult == true)
+            {
+                if (ls.Levels.Count > 0)
+                {
+                    UserDefinedLevels = ls.Levels;
+                }
+                else
+                {
+                    MessageBox.Show("No levels selected");
+                    return Result.Cancelled;
+                }
+            }
+
+
+            //int counter = 0;
+            FilteredElementCollector luminaries = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+                .OfCategory(BuiltInCategory.OST_LightingFixtures);
+            FilteredElementCollector ElectricalEquipment = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+                .OfCategory(BuiltInCategory.OST_ElectricalEquipment);
+            FilteredElementCollector LightingDevices = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+                .OfCategory(BuiltInCategory.OST_LightingDevices);
+            FilteredElementCollector FireAlarmDevices = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+                .OfCategory(BuiltInCategory.OST_FireAlarmDevices);
+            FilteredElementCollector CommunicationDevices = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+                .OfCategory(BuiltInCategory.OST_CommunicationDevices);
+            FilteredElementCollector TelephoneDevices = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+                .OfCategory(BuiltInCategory.OST_TelephoneDevices);
+
+            List<Element> instancelist = new List<Element>();
+            instancelist.AddRange(luminaries.ToElements().ToList());
+            instancelist.AddRange(ElectricalEquipment.ToElements().ToList());
+            instancelist.AddRange(LightingDevices.ToElements().ToList());
+            instancelist.AddRange(CommunicationDevices.ToElements().ToList());
+            instancelist.AddRange(FireAlarmDevices.ToElements().ToList());
+            instancelist.AddRange(TelephoneDevices.ToElements().ToList());
+
+            foreach (FamilyInstance e in instancelist)
+            {
+                {
+                    using (Transaction trans = new Transaction(doc, "Paramaters Adding"))
+                    {
+                        trans.Start();
+                        Parameter param1 = e.LookupParameter("RaumNummer");
+                        Parameter param2 = e.LookupParameter("RaumName");
+                        param1.Set("empty");
+                        param2.Set("empty");
+                        trans.Commit();
+                    }
+                }
+            }
+
+            foreach (Room item in GetRooms(UserDefinedDocuments, UserDefinedLevels))
             {
                 ApplyParameterToDevice(item, doc);
-                counter++;
             }
-            TaskDialog.Show("Finished", "Modification provided in " + counter +"rooms.");
+
             return Result.Succeeded;
         }
 
-        public List<Room> GetRooms(Application app)
+        //private void BuildLline(Document doc, XYZ locationpoint)
+        //{
+        //    using (Transaction trans = new Transaction(doc, "Paramaters Adding"))
+        //    {
+        //        trans.Start();
+        //        XYZ start = new XYZ(locationpoint.X, locationpoint.Y, 0);
+        //        XYZ end = new XYZ(0, 0, 0);
+        //        Line line = Line.CreateBound(start, end);
+        //        Plane plane = new Plane();
+        //        doc.Create.NewModelCurve(line, SketchPlane.Create(doc, plane));
+
+        //        trans.Commit();
+        //    }
+        //}
+
+        public List<Level> GetLevels(Document doc)
         {
-            List<Room> roomList = new List<Room>();
-            
+            List<Level> levels = new List<Level>();
+            FilteredElementCollector levelCollector = new FilteredElementCollector(doc).OfClass(typeof(Level));
+
+            foreach (Element level in levelCollector)
+            {
+                levels.Add(level as Level);
+            }
+            return levels;
+        }
+
+        public List<Document> GetDocuments(Application app)
+        {
+            List<Document> docs = new List<Document>();
             foreach (Document d in app.Documents)
             {
-                if (d.IsLinked)
-                {
-                    FilteredElementCollector roomLinkedCollector = new FilteredElementCollector(d).OfCategory(BuiltInCategory.OST_Rooms);
+                docs.Add(d);
+            }
+            return docs;
+        }
 
-                    string tempLinkedRoom = string.Empty;
-                    foreach (Room e in roomLinkedCollector)
+        public List<Room> GetRooms(List<Document> docs, List<Level> levels)
+        {
+            List<Room> roomList = new List<Room>();
+            string temp = string.Empty;
+            foreach (Document d in docs)
+            {
+                FilteredElementCollector roomLinkedCollector = new FilteredElementCollector(d).OfCategory(BuiltInCategory.OST_Rooms);
+                foreach (Room room in roomLinkedCollector)
+                {
+                    foreach (Level level in levels)
                     {
-                        roomList.Add(e);
-                        tempLinkedRoom += e.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString() + " " + e.get_Parameter(BuiltInParameter.ROOM_NAME).AsString() + "\n";
+                        if (room.LevelId == level.Id)
+                        {
+                            roomList.Add(room);
+                        }
                     }
                 }
             }
             return roomList;
         }
-       
-        private List<FamilyInstance> GetCategoryDevices(Document doc, Room room, BuiltInCategory category )
+
+        private List<FamilyInstance> GetCategoryDevices(Document doc, Room room, BuiltInCategory category)
         {
             BoundingBoxIntersectsFilter filter = Filter(room);
             List<FamilyInstance> instances = new List<FamilyInstance>();
@@ -71,7 +204,6 @@ namespace RoomToFamily
                     instances.Add(e);
                 }
             }
-           
             return instances;
         }
 
@@ -88,28 +220,20 @@ namespace RoomToFamily
                 devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_FireAlarmDevices));
                 devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_CommunicationDevices));
                 devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_TelephoneDevices));
-                
-                {                       
+
+                {
                     using (Transaction trans = new Transaction(doc, "Paramaters Adding"))
                     {
-                        trans.Start();                        
+                        trans.Start();
                         foreach (FamilyInstance instance in devicesList)
                         {
-                            
                             Parameter param1 = instance.LookupParameter("RaumNummer");
                             Parameter param2 = instance.LookupParameter("RaumName");
-                            if (param1.HasValue)
-                            {
-                                param1.Set("empty data");
-                            }
 
-                            if (param2.HasValue)
-                            {
-                                param2.Set("empty data");
-                            }
                             param1.Set(room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString());
                             param2.Set(room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString());
-                        }                           
+
+                        }
                         trans.Commit();
                     }
                 }
@@ -120,10 +244,10 @@ namespace RoomToFamily
         {
             PointF location = new PointF();
             Location locationInstance = instance.Location;
-            LocationPoint point = locationInstance as LocationPoint; 
-            location.X = (float) (point.Point.X * 25.4 * 12);
-            location.Y = (float) (point.Point.Y * 25.4 * 12);
+            LocationPoint point = locationInstance as LocationPoint;
 
+            location.X = (float)(point.Point.X);
+            location.Y = (float)(point.Point.Y);
             return location;
         }
 
@@ -138,164 +262,16 @@ namespace RoomToFamily
             }
             return null;
         }
-        
 
-        public bool FilterPosition(Room room, FamilyInstance instance)
+        private bool FilterPosition(Room room, FamilyInstance instance)
         {
-            PointF location = GetLocation(instance);
-            List<System.Windows.Shapes.Line> revitWalls = GetWalls(room);
-            int revitOutterCheckpoint = 100000000;
-           
-                int counter = 0;
-                System.Windows.Shapes.Line check = DrawCheckline(location, revitOutterCheckpoint, revitOutterCheckpoint);
-                foreach (var wall in revitWalls)
-                {
-                    if (CheckIntersection(wall, check))
-                        counter++;
-                }
-                if (counter % 2 != 0)
-                    return true;
-                else return false;
-        }
-
-        private List<System.Windows.Shapes.Line> GetWalls(Room room)
-        {
-            SpatialElementBoundaryOptions boundaryOption = new SpatialElementBoundaryOptions();
-            boundaryOption.SpatialElementBoundaryLocation = SpatialElementBoundaryLocation.Center;
-
-            IList<IList<BoundarySegment>> boundary = room.GetBoundarySegments(boundaryOption);
-            List<System.Windows.Shapes.Line> wallCoord = new List<System.Windows.Shapes.Line>();
-
-            foreach (IList<BoundarySegment> walls in boundary)
+            XYZ locationPoint = new XYZ(GetLocation(instance).X, GetLocation(instance).Y, 0);
+            if (room.IsPointInRoom(locationPoint))
             {
-                foreach (BoundarySegment segment in walls)
-                {
-                    System.Windows.Shapes.Line wall = new System.Windows.Shapes.Line();
-
-                    var segmentStart = segment.GetCurve().GetEndPoint(0);
-
-                    wall.X1 = (segmentStart.X * 25.4 * 12);
-                    wall.Y1 = (segmentStart.Y * 25.4 * 12);
-
-                    var segmentEnd = segment.GetCurve().GetEndPoint(1);
-
-                    wall.X2 = (segmentEnd.X * 25.4 * 12);
-                    wall.Y2 = (segmentEnd.Y * 25.4 * 12);
-
-                    wallCoord.Add(wall);
-                }
+                return true;
             }
-            return wallCoord;
-        }
-
-        private System.Windows.Shapes.Line DrawCheckline(PointF point, int outterX, int outterY)
-        {
-            System.Windows.Shapes.Line checkLine = new System.Windows.Shapes.Line();
-            checkLine.X1 = outterX;
-            checkLine.Y1 = outterY;
-            checkLine.X2 = point.X;
-            checkLine.Y2 = point.Y;
-            return checkLine;
-        }
-
-        private bool CheckIntersection(System.Windows.Shapes.Line first, System.Windows.Shapes.Line second)
-        {
-            PointF intersection = GetIntersectionD(first, second);
-
-            if ((float.IsInfinity(intersection.X)) || (float.IsInfinity(intersection.Y)))
-            {
+            else
                 return false;
-            }
-
-            bool belongFirst = CheckIfPointBelongToLine(first, intersection);
-            bool belongSecond = CheckIfPointBelongToLine(second, intersection);
-
-            if (belongFirst && belongSecond)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        bool CheckIfPointBelongToLine(System.Windows.Shapes.Line line, PointF point)
-        {
-            System.Windows.Shapes.Line check1 = new System.Windows.Shapes.Line();
-            check1.X1 = line.X1;
-            check1.Y1 = line.Y1;
-            check1.X2 = point.X;
-            check1.Y2 = point.Y;
-
-            System.Windows.Shapes.Line check2 = new System.Windows.Shapes.Line();
-            check2.X1 = line.X2;
-            check2.Y1 = line.Y2;
-            check2.X2 = point.X;
-            check2.Y2 = point.Y;
-            double summ = GetLength(check1) + GetLength(check2);
-            double length = GetLength(line);
-
-            double tolerance = Math.Abs(length * .00001);
-            if (Math.Abs(length - summ) < tolerance)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public PointF GetIntersectionD(System.Windows.Shapes.Line box, System.Windows.Shapes.Line wall)
-        {
-            List<double> wallCoefs = LineEquation(wall);
-            double a1 = wallCoefs[0];
-            double b1 = wallCoefs[1];
-            double c1 = wallCoefs[2];
-
-            List<double> boxCoefs = LineEquation(box);
-            double a2 = boxCoefs[0];
-            double b2 = boxCoefs[1];
-            double c2 = boxCoefs[2];
-
-            PointF intersection = new PointF();
-            {
-                double x = (c1 * b2 - c2 * b1) / (a2 * b1 - a1 * b2);
-                double y = 0;
-                if (b1.Equals(0))
-                {
-                    y = (int)(-c2 - a2 * x) / b2;
-                }
-                else if (b2.Equals(0))
-                    y = (-c1 - a1 * x) / b1;
-
-                else
-                    y = (-c2 - (a2 * x)) / b2;
-
-                if (x.Equals(Double.NaN))
-                {
-                    x = float.PositiveInfinity;
-                }
-                if (y.Equals(Double.NaN))
-                {
-                    y = float.PositiveInfinity;
-                }
-                intersection.X = (float)x;
-                intersection.Y = (float)y;
-            }
-            return intersection;
-        }
-
-        public List<double> LineEquation(System.Windows.Shapes.Line line)
-        {
-            List<double> result = new List<double>();
-            double a = line.Y2 - line.Y1;
-            double b = line.X1 - line.X2;
-            double c = line.Y1 * (line.X1 - line.X2) - line.X1 * (line.Y1 - line.Y2);
-            result.Add(a);
-            result.Add(b);
-            result.Add(-c);
-            return result;
-        }
-
-        private double GetLength(System.Windows.Shapes.Line line)
-        {
-            return Math.Sqrt(Math.Pow((line.X1 - line.X2), 2) + Math.Pow((line.Y1 - line.Y2), 2));
         }
     }
 }
