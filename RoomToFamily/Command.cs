@@ -99,6 +99,8 @@ namespace RoomToFamily
                 .OfCategory(BuiltInCategory.OST_CommunicationDevices);
             FilteredElementCollector TelephoneDevices = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
                 .OfCategory(BuiltInCategory.OST_TelephoneDevices);
+            FilteredElementCollector ElectricalFixtures = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+                .OfCategory(BuiltInCategory.OST_ElectricalFixtures);
 
             List<Element> instancelist = new List<Element>();
             instancelist.AddRange(luminaries.ToElements().ToList());
@@ -107,27 +109,28 @@ namespace RoomToFamily
             instancelist.AddRange(CommunicationDevices.ToElements().ToList());
             instancelist.AddRange(FireAlarmDevices.ToElements().ToList());
             instancelist.AddRange(TelephoneDevices.ToElements().ToList());
+            instancelist.AddRange(ElectricalFixtures.ToElements().ToList());
 
-            foreach (FamilyInstance e in instancelist)
-            {
-                {
-                    using (Transaction trans = new Transaction(doc, "Paramaters Adding"))
-                    {
-                        trans.Start();
-                        Parameter param1 = e.LookupParameter("RaumNummer");
-                        Parameter param2 = e.LookupParameter("RaumName");
-                        param1.Set("empty");
-                        param2.Set("empty");
-                        trans.Commit();
-                    }
-                }
-            }
+            //foreach (FamilyInstance e in instancelist)
+            //{
+            //    {
+            //        using (Transaction trans = new Transaction(doc, "Paramaters Adding"))
+            //        {
+            //            trans.Start();
+            //            Parameter param1 = e.LookupParameter("RaumNummer");
+            //            Parameter param2 = e.LookupParameter("RaumName");
+            //            param1.Set("Clear Number");
+            //            param2.Set("Clear Name");
+            //            trans.Commit();
+            //        }
+            //    }
+            //}
 
             foreach (Room item in GetRooms(UserDefinedDocuments, UserDefinedLevels))
             {
                 ApplyParameterToDevice(item, doc);
             }
-
+            TaskDialog.Show("Task Completed", "Task ended");
             return Result.Succeeded;
         }
 
@@ -204,6 +207,7 @@ namespace RoomToFamily
                     instances.Add(e);
                 }
             }
+           
             return instances;
         }
 
@@ -265,7 +269,7 @@ namespace RoomToFamily
 
         private bool FilterPosition(Room room, FamilyInstance instance)
         {
-            XYZ locationPoint = new XYZ(GetLocation(instance).X, GetLocation(instance).Y, 0);
+            XYZ locationPoint = new XYZ(GetLocation(instance).X, GetLocation(instance).Y, room.get_BoundingBox(null).Min.Z);
             if (room.IsPointInRoom(locationPoint))
             {
                 return true;
