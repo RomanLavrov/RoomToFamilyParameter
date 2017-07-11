@@ -85,31 +85,30 @@ namespace RoomToFamily
                 }
             }
 
-
             //int counter = 0;
-            FilteredElementCollector luminaries = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
-                .OfCategory(BuiltInCategory.OST_LightingFixtures);
-            FilteredElementCollector ElectricalEquipment = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
-                .OfCategory(BuiltInCategory.OST_ElectricalEquipment);
-            FilteredElementCollector LightingDevices = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
-                .OfCategory(BuiltInCategory.OST_LightingDevices);
-            FilteredElementCollector FireAlarmDevices = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
-                .OfCategory(BuiltInCategory.OST_FireAlarmDevices);
-            FilteredElementCollector CommunicationDevices = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
-                .OfCategory(BuiltInCategory.OST_CommunicationDevices);
-            FilteredElementCollector TelephoneDevices = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
-                .OfCategory(BuiltInCategory.OST_TelephoneDevices);
-            FilteredElementCollector ElectricalFixtures = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
-                .OfCategory(BuiltInCategory.OST_ElectricalFixtures);
+            //FilteredElementCollector luminaries = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+            //    .OfCategory(BuiltInCategory.OST_LightingFixtures);
+            //FilteredElementCollector ElectricalEquipment = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+            //    .OfCategory(BuiltInCategory.OST_ElectricalEquipment);
+            //FilteredElementCollector LightingDevices = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+            //    .OfCategory(BuiltInCategory.OST_LightingDevices);
+            //FilteredElementCollector FireAlarmDevices = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+            //    .OfCategory(BuiltInCategory.OST_FireAlarmDevices);
+            //FilteredElementCollector CommunicationDevices = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+            //    .OfCategory(BuiltInCategory.OST_CommunicationDevices);
+            //FilteredElementCollector TelephoneDevices = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+            //    .OfCategory(BuiltInCategory.OST_TelephoneDevices);
+            //FilteredElementCollector ElectricalFixtures = new FilteredElementCollector(doc).OfClass(typeof(FamilyInstance))
+            //    .OfCategory(BuiltInCategory.OST_ElectricalFixtures);
 
-            List<Element> instancelist = new List<Element>();
-            instancelist.AddRange(luminaries.ToElements().ToList());
-            instancelist.AddRange(ElectricalEquipment.ToElements().ToList());
-            instancelist.AddRange(LightingDevices.ToElements().ToList());
-            instancelist.AddRange(CommunicationDevices.ToElements().ToList());
-            instancelist.AddRange(FireAlarmDevices.ToElements().ToList());
-            instancelist.AddRange(TelephoneDevices.ToElements().ToList());
-            instancelist.AddRange(ElectricalFixtures.ToElements().ToList());
+            //List<Element> instancelist = new List<Element>();
+            //instancelist.AddRange(luminaries.ToElements().ToList());
+            //instancelist.AddRange(ElectricalEquipment.ToElements().ToList());
+            //instancelist.AddRange(LightingDevices.ToElements().ToList());
+            //instancelist.AddRange(CommunicationDevices.ToElements().ToList());
+            //instancelist.AddRange(FireAlarmDevices.ToElements().ToList());
+            //instancelist.AddRange(TelephoneDevices.ToElements().ToList());
+            //instancelist.AddRange(ElectricalFixtures.ToElements().ToList());
 
             //foreach (FamilyInstance e in instancelist)
             //{
@@ -224,6 +223,7 @@ namespace RoomToFamily
                 devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_FireAlarmDevices));
                 devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_CommunicationDevices));
                 devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_TelephoneDevices));
+                devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_DataDevices));
 
                 {
                     using (Transaction trans = new Transaction(doc, "Paramaters Adding"))

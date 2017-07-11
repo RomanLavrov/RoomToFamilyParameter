@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Architecture;
+using Autodesk.Revit.UI;
 
 namespace RoomToFamily
 {
@@ -32,13 +33,13 @@ namespace RoomToFamily
 
         public void GetDocList(List<Document> Documents)
         {
+           
             int index = 0;
             Docs = Documents;
             foreach (var item in Documents)
             {
                 CheckBox cb = new CheckBox();
-                int position = item.PathName.LastIndexOf('\\');
-                cb.Content = item.PathName.Substring(position + 1);
+                cb.Content = item.Title;
                 cb.Margin = new Thickness(0, 20 * index, 0, 0);
                 cbList.Add(cb);
                 Grid.Children.Add(cb);
