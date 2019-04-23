@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
       None
@@ -17,7 +17,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>RoomToFamily</RootNamespace>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -47,18 +47,10 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="RevitAPI">
-      <HintPath>D:\Program Files\Autodesk\Revit 2016\RevitAPI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="RevitAPIIFC">
-      <HintPath>D:\Program Files\Autodesk\Revit 2016\RevitAPIIFC.dll</HintPath>
+      <HintPath>..\..\..\..\..\Downloads\RevitAPI.dll</HintPath>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>D:\Program Files\Autodesk\Revit 2016\RevitAPIUI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="RevitUIAPI">
-      <HintPath>D:\Program Files\Autodesk\Revit 2016\RevitUIAPI.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files\Autodesk\Revit 2017\RevitAPIUI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -109,6 +101,10 @@
   </Target>
   <PropertyGroup>
     <PostBuildEvent>copy "$(ProjectDir)RoomToFamily.addin" "$(AppData)\Autodesk\REVIT\Addins\2016"
-copy "$(ProjectDir)bin\debug\RoomToFamily.dll" "$(AppData)\Autodesk\REVIT\Addins\2016"</PostBuildEvent>
+copy "$(ProjectDir)bin\debug\RoomToFamily.dll" "$(AppData)\Autodesk\REVIT\Addins\2016"
+copy "$(ProjectDir)RoomToFamily.addin" "$(AppData)\Autodesk\REVIT\Addins\2017"
+copy "$(ProjectDir)bin\debug\RoomToFamily.dll" "$(AppData)\Autodesk\REVIT\Addins\2017"
+copy "$(ProjectDir)RoomToFamily.addin" "$(AppData)\Autodesk\REVIT\Addins\2019"
+copy "$(ProjectDir)bin\debug\RoomToFamily.dll" "$(AppData)\Autodesk\REVIT\Addins\2019"</PostBuildEvent>
   </PropertyGroup>
 </Project>

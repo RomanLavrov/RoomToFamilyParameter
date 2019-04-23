@@ -184,10 +184,13 @@ namespace RoomToFamily
                         if (room.LevelId == level.Id)
                         {
                             roomList.Add(room);
+                            temp += room.Name + Environment.NewLine;
                         }
                     }
                 }
             }
+
+            TaskDialog.Show("Rooms",temp);
             return roomList;
         }
 
@@ -216,6 +219,7 @@ namespace RoomToFamily
             BoundingBoxXYZ box = room.get_BoundingBox(null);
             if (box != null)
             {
+                //TODO Create group categories
                 devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_ElectricalEquipment));
                 devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_ElectricalFixtures));
                 devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_LightingDevices));
@@ -226,17 +230,24 @@ namespace RoomToFamily
                 devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_DataDevices));
 
                 {
+                    //TODO Create parameter from user menu
                     using (Transaction trans = new Transaction(doc, "Paramaters Adding"))
                     {
                         trans.Start();
                         foreach (FamilyInstance instance in devicesList)
                         {
-                            Parameter param1 = instance.LookupParameter("RaumNummer");
-                            Parameter param2 = instance.LookupParameter("RaumName");
+                            try
+                            {
+                                Parameter param1 = instance.LookupParameter("RaumNummer");
+                                Parameter param2 = instance.LookupParameter("RaumName");
 
-                            param1.Set(room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString());
-                            param2.Set(room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString());
-
+                                param1.Set(room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString());
+                                param2.Set(room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString());
+                            }
+                            catch (Exception e)
+                            {
+                               
+                            }
                         }
                         trans.Commit();
                     }
