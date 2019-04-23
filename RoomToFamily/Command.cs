@@ -229,6 +229,11 @@ namespace RoomToFamily
                 devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_TelephoneDevices));
                 devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_DataDevices));
 
+                devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_SecurityDevices));
+                devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_CableTray));
+                devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_CableTrayFitting));
+                devicesList.AddRange(GetCategoryDevices(doc, room, BuiltInCategory.OST_GenericModel));
+
                 {
                     //TODO Create parameter from user menu
                     using (Transaction trans = new Transaction(doc, "Paramaters Adding"))
